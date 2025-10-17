@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joc de Prevenció de Delictes Digitals</title>
+    <script type="module" src="https://esm.sh/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: url('fons-web-joc-digital.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        h1 {
+            color: #2e7d32;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .screen {
+            max-width: 650px;
+            width: 100%;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+        #auth-screen { display: block; }
+        #question { font-size: 1.3em; margin-bottom: 25px; color: #424242; }
+        button {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background: #1b5e20;
+            transform: translateY(-2px);
+        }
+        input {
+            padding: 12px;
+            margin: 10px;
+            width: 80%;
+            max-width: 300px;
+            border: 2px solid #b0bec5;
+            border-radius: 8px;
+            font-size: 1em;
+            background: rgba(255, 255, 255, 0.9);
+            autocomplete: off;
+        }
+        #feedback { margin-top: 20px; font-weight: bold; }
+        .correct { color: #2e7d32; }
+        .incorrect { color: #d32f2f; }
+        #score { font-size: 1.6em; color: #424242; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: center;
+        }
+        th { background: #c8e6c9; color: #1b5e20; }
+        #welcome-user { color: #d81b60; font-weight: bold; }
+        /* Estil per al logo personalitzat */
+        .logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 120px;
+            height: auto;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo personalitzat -->
+    <img src="logo-uoc.png" alt="Logo UOC" class="logo" id="uoc-logo">
+    <div id="auth-screen" class="screen">
+        <h1>🎮 Joc de Seguretat Digital</h1>
+        <p>Registra't amb un àlies únic per guardar les teves puntuacions!</p>
+        <input id="username" type="text" placeholder="El teu àlies (ex: SuperHero)" maxlength="15" autocomplete="off">
+        <input id="password" type="password" placeholder="Contrasenya" autocomplete="off">
+        <button id="register-btn">🚀 Registrar-me</button>
+        <button id="login-btn">🔑 Iniciar Sessió</button>
+        <p id="auth-feedback"></p>
+    </div>
+
+    <div id="start-screen" class="screen">
+        <h1>🎯 Benvingut, <span id="welcome-user"></span>!</h1>
+        <p>Respon 10 preguntes sobre seguretat digital. ¡Demostra que ets un expert!</p>
+        <button id="start-btn">▶️ Començar Joc</button>
+        <button id="view-ranking-btn">🏆 Veure Ranking</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <h1>Pregunta <span id="question-number"></span>/10</h1>
+        <p id="question"></p>
+        <button id="yes-btn">✅ Segur (Sí)</button>
+        <button id="no-btn">❌ No Segur (No)</button>
+        <div id="feedback"></div>
+        <button id="next-btn" style="display: none;">➡️ Següent</button>
+        <button id="view-ranking-game-btn">🏆 Veure Ranking</button>
+    </div>
+
+    <div id="end-screen" class="screen">
+        <h1>🎉 Fi del Joc!</h1>
+        <p id="final-score"></p>
+        <button id="restart-btn">🔄 Jugar de Nou</button>
+        <button id="view-ranking-end-btn">🏆 Veure Ranking</button>
+    </div>
+
+    <div id="ranking-screen" class="screen">
+        <h1>🏆 TOP 10 GUERRERS DIGITALS</h1>
+        <table id="ranking-table">
+            <thead><tr><th>#</th><th>🦸 Usuari</th><th>⭐ Puntuació</th><th>📅 Data</th></tr></thead>
+            <tbody></tbody>
+        </table>
+        <button id="back-to-start-btn">🏠 Inici</button>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+        
+        const supabase = createClient('https://vsqxihvdovwuioivtqnc.supabase.co', 
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzcXhpaHZkb3Z3dWlvaXZ0cW5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MzM0MTksImV4cCI6MjA3NjEwOTQxOX0.Tvx0pKOAu4biBIBto2DmjojS5at-8gcM6-W4Uu62s14', {
+            auth: { autoRefreshToken: false, persistSession: false }
+        });
+        
+        const questions = [
+            { question: "És segur compartir la teva contrasenya amb un amic desconegut en línia?", correct: false, explanation: "❌ No! Només amb els teus pares si cal." },
+            { question: "Canviar les contrasenyes sovint és una bona pràctica?", correct: true, explanation: "✅ Sí! Fa més difícil que les endevin." },
+            { question: "Utilitzar la mateixa contrasenya per tots els comptes és segur?", correct: false, explanation: "❌ No! Si un es hackeja, tots cauen." },
+            { question: "Una contrasenya com '$3cUR3!i' és forta?", correct: true, explanation: "✅ Sí! Números + lletres + símbols = súper forta!" },
+            { question: "Acceptar una sol·licitud d'amistat d'algú que no coneixes?", correct: false, explanation: "❌ No! Pot ser un dolent disfressat." },
+            { question: "Postejar un vídeo amb l'uniforme de l'escola?", correct: false, explanation: "❌ No! Revela on estudies." },
+            { question: "Fer clic en un enllaç d'email que diu 'Compte suspès'?", correct: false, explanation: "❌ No! És phishing per robar dades." },
+            { question: "Si veus ciberbullying, ignorar-ho?", correct: false, explanation: "❌ No! Captura i digues a un adult." },
+            { question: "Reunir-te amb algú només conegut online?", correct: false, explanation: "❌ No! Sempre amb un adult." },
+            { question: "Comprovar l'edat recomanada d'un joc online?", correct: true, explanation: "✅ Sí! Protegeix contra contingut perillós." },
+            { question: "Un jugador et demana dades personals?", correct: false, explanation: "❌ No! Bloqueja i reporta." },
+            { question: "Utilitzar gestor de contrasenyes?", correct: true, explanation: "✅ Sí! Crea contrasenyes súper segures." },
+            { question: "Menor de 10 anys pot tenir Facebook?", correct: false, explanation: "❌ No! Edat mínima 13 anys." },
+            { question: "Controls parentals protegeixen?", correct: true, explanation: "✅ Sí! Bloquegen contingut perillós." },
+            { question: "Baixar programes sospitosos?", correct: true, explanation: "✅ Sí, poden tenir virus! Només de fonts segures." }
+        ];
+
+        let currentUser = null, currentQuestion = 0, score = 0, selectedQuestions = [];
+
+        async function checkUniqueUsername(username) {
+            const { data, error } = await supabase.from('scores').select('username').eq('username', username);
+            if (error) return false;
+            return data.length === 0;
+        }
+
+        document.getElementById('register-btn').addEventListener('click', async () => {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            if (!username) {
+                document.getElementById('auth-feedback').textContent = '⚠️ Introdueix un àlies!';
+                return;
+            }
+            const isUnique = await checkUniqueUsername(username);
+            if (!isUnique) {
+                document.getElementById('auth-feedback').textContent = '❌ Aquest àlies ja existeix! Tria un altre.';
+                return;
+            }
+            if (username && password) {
+                currentUser = { username };
+                document.getElementById('welcome-user').textContent = username;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('start-screen').style.display = 'block';
+            }
+        });
+
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            if (username && password) {
+                currentUser = { username };
+                document.getElementById('welcome-user').textContent = username;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('start-screen').style.display = 'block';
+            }
+        });
+
+        function startGame() {
+            selectedQuestions = questions.sort(() => Math.random() - 0.5).slice(0, 10);
+            currentQuestion = 0; score = 0;
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = selectedQuestions[currentQuestion];
+            document.getElementById('question-number').textContent = currentQuestion + 1;
+            document.getElementById('question').textContent = q.question;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('yes-btn').disabled = false;
+            document.getElementById('no-btn').disabled = false;
+        }
+
+        function answer(isYes) {
+            const q = selectedQuestions[currentQuestion];
+            const correct = q.correct === isYes;
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = (correct ? '✅ ' : '❌ ') + q.explanation;
+            feedback.className = correct ? 'correct' : 'incorrect';
+            if (correct) score++;
+            document.getElementById('yes-btn').disabled = true;
+            document.getElementById('no-btn').disabled = true;
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < 10) loadQuestion();
+            else endGame();
+        }
+
+        async function endGame() {
+            if (currentUser) {
+                const { error } = await supabase.from('scores').insert([{
+                    username: currentUser.username,
+                    score: score,
+                    date: new Date().toISOString()
+                }]);
+                if (!error) alert(`🎉 ${score}/10 GUARDAT AL RANKING!`);
+                else console.error('Error guardant:', error);
+            }
+            
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+            document.getElementById('final-score').innerHTML = `🎊 Has encertat <strong>${score}/10</strong>! Ets un <strong>${score >= 8 ? '🦸 SUPERGÈNIO' : '⭐ GUERRER'}</strong>`;
+        }
+
+        async function showRanking() {
+            const { data, error } = await supabase.from('scores').select('*').order('score', { ascending: false }).limit(10);
+            const tbody = document.querySelector('#ranking-table tbody');
+            tbody.innerHTML = '';
+            if (data && data.length > 0) {
+                data.forEach((s, i) => {
+                    tbody.innerHTML += `<tr><td>${i+1}</td><td>${s.username}</td><td>${s.score}/10</td><td>${new Date(s.date).toLocaleDateString('ca')}</td></tr>`;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4">🏆 Primera puntuació aviat!</td></tr>';
+            }
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+            document.getElementById('ranking-screen').style.display = 'block';
+        }
+
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('yes-btn').addEventListener('click', () => answer(true));
+        document.getElementById('no-btn').addEventListener('click', () => answer(false));
+        document.getElementById('next-btn').addEventListener('click', nextQuestion);
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            document.getElementById('end-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+        });
+        document.getElementById('view-ranking-btn').addEventListener('click', showRanking);
+        document.getElementById('view-ranking-end-btn').addEventListener('click', showRanking);
+        document.getElementById('view-ranking-game-btn').addEventListener('click', showRanking);
+        document.getElementById('back-to-start-btn').addEventListener('click', () => {
+            document.getElementById('ranking-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
