@@ -27,8 +27,8 @@
         }
         .screen {
             max-width: 650px;
-            width: 100%;
-            padding: 25px;
+            width: 90%; /* Més flexible per mòbils */
+            padding: 20px;
             background: rgba(255, 255, 255, 0.85);
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -36,13 +36,13 @@
             backdrop-filter: blur(5px);
         }
         #auth-screen { display: block; }
-        #question { font-size: 1.3em; margin-bottom: 25px; color: #424242; }
+        #question { font-size: 1.3em; margin-bottom: 20px; color: #424242; }
         button {
             background: #2e7d32;
             color: white;
             border: none;
-            padding: 12px 25px;
-            margin: 10px;
+            padding: 10px 20px;
+            margin: 8px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 1.1em;
@@ -53,41 +53,83 @@
             transform: translateY(-2px);
         }
         input {
-            padding: 12px;
-            margin: 10px;
+            padding: 10px;
+            margin: 8px;
             width: 80%;
-            max-width: 300px;
+            max-width: 250px;
             border: 2px solid #b0bec5;
             border-radius: 8px;
             font-size: 1em;
             background: rgba(255, 255, 255, 0.9);
             autocomplete: off;
         }
-        #feedback { margin-top: 20px; font-weight: bold; }
+        #feedback { margin-top: 15px; font-weight: bold; }
         .correct { color: #2e7d32; }
         .incorrect { color: #d32f2f; }
         #score { font-size: 1.6em; color: #424242; }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
             background: rgba(255, 255, 255, 0.9);
         }
         th, td {
             border: 1px solid #e0e0e0;
-            padding: 12px;
+            padding: 10px;
             text-align: center;
+            font-size: 0.9em;
         }
         th { background: #c8e6c9; color: #1b5e20; }
         #welcome-user { color: #d81b60; font-weight: bold; }
         /* Estil per al logo personalitzat */
         .logo {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            width: 120px;
+            top: 10px;
+            left: 10px;
+            width: 100px; /* Reduït per mòbils */
             height: auto;
             z-index: 1000;
+        }
+
+        /* Media Query per dispositius mòbils (pantalles < 768px) */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .screen {
+                width: 95%;
+                padding: 15px;
+            }
+            #question {
+                font-size: 1.1em;
+                margin-bottom: 15px;
+            }
+            button {
+                padding: 8px 15px;
+                font-size: 1em;
+                margin: 5px;
+            }
+            input {
+                padding: 8px;
+                max-width: 200px;
+                margin: 5px;
+            }
+            #feedback { margin-top: 10px; }
+            #score { font-size: 1.3em; }
+            table th, table td {
+                padding: 8px;
+                font-size: 0.8em;
+            }
+            .logo {
+                top: 5px;
+                left: 5px;
+                width: 80px;
+            }
+            #view-ranking-game-btn {
+                position: relative;
+                margin-top: 10px;
+                width: 100%;
+            }
         }
     </style>
 </head>
