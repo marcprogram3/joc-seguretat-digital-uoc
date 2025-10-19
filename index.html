@@ -27,7 +27,7 @@
         }
         .screen {
             max-width: 650px;
-            width: 90%; /* Més flexible per mòbils */
+            width: 90%;
             padding: 20px;
             background: rgba(255, 255, 255, 0.85);
             border-radius: 15px;
@@ -86,13 +86,16 @@
             position: fixed;
             top: 10px;
             left: 10px;
-            width: 100px; /* Reduït per mòbils */
+            width: 100px;
             height: auto;
             z-index: 1000;
         }
 
         /* Media Query per dispositius mòbils (pantalles < 768px) */
         @media (max-width: 768px) {
+            body {
+                font-family: 'Arial', sans-serif; /* Canvi a font més llegible */
+            }
             h1 {
                 font-size: 2em;
             }
@@ -138,7 +141,9 @@
     <img src="logo-uoc.png" alt="Logo UOC" class="logo" id="uoc-logo">
     <div id="auth-screen" class="screen">
         <h1>🎮 Joc de Seguretat Digital</h1>
-        <p>Registra't amb un àlies únic per guardar les teves puntuacions!</p>
+        <p>Escull com vols jugar:</p>
+        <button id="guest-btn">🎮 Jugar com Invitat</button>
+        <p>O inicia sessió per guardar les teves puntuacions!</p>
         <input id="username" type="text" placeholder="El teu àlies (ex: SuperHero)" maxlength="15" autocomplete="off">
         <input id="password" type="password" placeholder="Contrasenya" autocomplete="off">
         <button id="register-btn">🚀 Registrar-me</button>
@@ -205,13 +210,22 @@
             { question: "Baixar programes sospitosos?", correct: true, explanation: "✅ Sí, poden tenir virus! Només de fonts segures." }
         ];
 
-        let currentUser = null, currentQuestion = 0, score = 0, selectedQuestions = [];
+        let currentUser = null, currentQuestion = 0, score = 0, selectedQuestions = [], isGuest = false;
 
         async function checkUniqueUsername(username) {
             const { data, error } = await supabase.from('scores').select('username').eq('username', username);
             if (error) return false;
             return data.length === 0;
         }
+
+        document.getElementById('guest-btn').addEventListener('click', () => {
+            isGuest = true;
+            currentUser = { username: 'Invitat' + Math.floor(Math.random() * 1000) }; // Nom aleatori per invitat
+            document.getElementById('welcome-user').textContent = currentUser.username;
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+            document.getElementById('view-ranking-btn').style.display = 'none'; // Amaga ranking per invitats
+        });
 
         document.getElementById('register-btn').addEventListener('click', async () => {
             const username = document.getElementById('username').value.trim();
@@ -227,9 +241,11 @@
             }
             if (username && password) {
                 currentUser = { username };
+                isGuest = false;
                 document.getElementById('welcome-user').textContent = username;
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('start-screen').style.display = 'block';
+                document.getElementById('view-ranking-btn').style.display = 'block';
             }
         });
 
@@ -238,9 +254,11 @@
             const password = document.getElementById('password').value;
             if (username && password) {
                 currentUser = { username };
+                isGuest = false;
                 document.getElementById('welcome-user').textContent = username;
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('start-screen').style.display = 'block';
+                document.getElementById('view-ranking-btn').style.display = 'block';
             }
         });
 
@@ -260,6 +278,7 @@
             document.getElementById('next-btn').style.display = 'none';
             document.getElementById('yes-btn').disabled = false;
             document.getElementById('no-btn').disabled = false;
+            document.getElementById('view-ranking-game-btn').style.display = isGuest ? 'none' : 'block'; // Amaga ranking per invitats
         }
 
         function answer(isYes) {
@@ -281,7 +300,7 @@
         }
 
         async function endGame() {
-            if (currentUser) {
+            if (currentUser && !isGuest) {
                 const { error } = await supabase.from('scores').insert([{
                     username: currentUser.username,
                     score: score,
@@ -289,26 +308,34 @@
                 }]);
                 if (!error) alert(`🎉 ${score}/10 GUARDAT AL RANKING!`);
                 else console.error('Error guardant:', error);
+            } else if (isGuest) {
+                alert(`🎉 Has encertat ${score}/10! (No es guarda com a invitat)`);
             }
             
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('end-screen').style.display = 'block';
             document.getElementById('final-score').innerHTML = `🎊 Has encertat <strong>${score}/10</strong>! Ets un <strong>${score >= 8 ? '🦸 SUPERGÈNIO' : '⭐ GUERRER'}</strong>`;
+            document.getElementById('view-ranking-end-btn').style.display = isGuest ? 'none' : 'block'; // Amaga ranking per invitats
         }
 
         async function showRanking() {
-            const { data, error } = await supabase.from('scores').select('*').order('score', { ascending: false }).limit(10);
-            const tbody = document.querySelector('#ranking-table tbody');
-            tbody.innerHTML = '';
-            if (data && data.length > 0) {
-                data.forEach((s, i) => {
-                    tbody.innerHTML += `<tr><td>${i+1}</td><td>${s.username}</td><td>${s.score}/10</td><td>${new Date(s.date).toLocaleDateString('ca')}</td></tr>`;
-                });
+            if (!isGuest) {
+                const { data, error } = await supabase.from('scores').select('*').order('score', { ascending: false }).limit(10);
+                const tbody = document.querySelector('#ranking-table tbody');
+                tbody.innerHTML = '';
+                if (data && data.length > 0) {
+                    data.forEach((s, i) => {
+                        tbody.innerHTML += `<tr><td>${i+1}</td><td>${s.username}</td><td>${s.score}/10</td><td>${new Date(s.date).toLocaleDateString('ca')}</td></tr>`;
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4">🏆 Primera puntuació aviat!</td></tr>';
+                }
+                document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+                document.getElementById('ranking-screen').style.display = 'block';
             } else {
-                tbody.innerHTML = '<tr><td colspan="4">🏆 Primera puntuació aviat!</td></tr>';
+                alert('⚠️ Els invitats no poden veure el ranking!');
+                document.getElementById('game-screen').style.display = 'block'; // Torna al joc
             }
-            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            document.getElementById('ranking-screen').style.display = 'block';
         }
 
         document.getElementById('start-btn').addEventListener('click', startGame);
