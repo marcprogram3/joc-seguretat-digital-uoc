@@ -193,21 +193,26 @@
         });
         
         const questions = [
-            { question: "És segur compartir la teva contrasenya amb un amic desconegut en línia?", correct: false, explanation: "❌ No! Només amb els teus pares si cal." },
-            { question: "Canviar les contrasenyes sovint és una bona pràctica?", correct: true, explanation: "✅ Sí! Fa més difícil que les endevin." },
-            { question: "Utilitzar la mateixa contrasenya per tots els comptes és segur?", correct: false, explanation: "❌ No! Si un es hackeja, tots cauen." },
-            { question: "Una contrasenya com '$3cUR3!i' és forta?", correct: true, explanation: "✅ Sí! Números + lletres + símbols = súper forta!" },
-            { question: "Acceptar una sol·licitud d'amistat d'algú que no coneixes?", correct: false, explanation: "❌ No! Pot ser un dolent disfressat." },
-            { question: "Postejar un vídeo amb l'uniforme de l'escola?", correct: false, explanation: "❌ No! Revela on estudies." },
-            { question: "Fer clic en un enllaç d'email que diu 'Compte suspès'?", correct: false, explanation: "❌ No! És phishing per robar dades." },
-            { question: "Si veus ciberbullying, ignorar-ho?", correct: false, explanation: "❌ No! Captura i digues a un adult." },
-            { question: "Reunir-te amb algú només conegut online?", correct: false, explanation: "❌ No! Sempre amb un adult." },
-            { question: "Comprovar l'edat recomanada d'un joc online?", correct: true, explanation: "✅ Sí! Protegeix contra contingut perillós." },
-            { question: "Un jugador et demana dades personals?", correct: false, explanation: "❌ No! Bloqueja i reporta." },
-            { question: "Utilitzar gestor de contrasenyes?", correct: true, explanation: "✅ Sí! Crea contrasenyes súper segures." },
-            { question: "Menor de 10 anys pot tenir Facebook?", correct: false, explanation: "❌ No! Edat mínima 13 anys." },
-            { question: "Controls parentals protegeixen?", correct: true, explanation: "✅ Sí! Bloquegen contingut perillós." },
-            { question: "Baixar programes sospitosos?", correct: true, explanation: "✅ Sí, poden tenir virus! Només de fonts segures." }
+            { question: "Està bé compartir fotos personals a les xarxes socials amb persones que gairebé no coneixes?", correct: false, explanation: "❌ No! Pot ser perillós, les imatges es poden difondre sense permís." },
+            { question: "Has de respondre a missatges ofensius o burles a internet?", correct: false, explanation: "❌ No! Respondre pot empitjorar la situació, és millor guardar proves, bloquejar i denunciar." },
+            { question: "Si un professor veu una burla i no fa res, l’assetjament pot continuar?", correct: true, explanation: "✅ Sí! La manca d'acció permet que la violència es repeteixi." },
+            { question: "És correcte callar si ets testimoni d’un cas d’assetjament?", correct: false, explanation: "❌ No! Callar permet que l’assetjament continuï." },
+            { question: "Si un amic et diu que pateix violència a casa, has d’avisar un adult responsable?", correct: true, explanation: "✅ Sí! Explicar-ho pot ajudar-lo a rebre protecció." },
+            { question: "Els cops només són greus si deixen marques visibles?", correct: false, explanation: "❌ No! Qualsevol acte de violència és greu encara que no hi faci ferides visibles." },
+            { question: "Pots creure’t sempre tot el que veus o llegeixes a internet?", correct: false, explanation: "❌ No! Molts continguts són falsos o manipulats; contrastar amb fonts segures és clau." },
+            { question: "Si una persona desconeguda t’ofereix diners o regals per internet, ho has d’acceptar?", correct: false, explanation: "❌ No! Pot ser un intent d’enganyar-te o manipular-te." },
+            { question: "És segur publicar dades personals com la teva escola, el número de telèfon o el teu nom complet?", correct: false, explanation: "❌ No! Aquesta informació pot servir perquè algú t’identifiqui o suplanti la teva identitat." },
+            { question: "Si passes massa hores connectat a les xarxes, et pot afectar?", correct: true, explanation: "✅ Sí! Pot alterar el descans, fer baixar el rendiment acadèmic i distanciar-te de les relacions reals." },
+            { question: "És correcte suplantar la identitat d’algú a les xarxes socials?", correct: false, explanation: "❌ No! Això és un delicte i pot tenir conseqüències legals." },
+            { question: "És correcte publicar vídeos de baralles o conflictes que veiem al carrer o a l’escola?", correct: false, explanation: "❌ No! Poden fer mal als implicats i tenir conseqüències legals contra un mateix." },
+            { question: "És segur enviar fotos personals a algú que has conegut per internet?", correct: false, explanation: "❌ No! No saps qui pot estar darrere del perfil i les imatges poden ser mal utilitzades." },
+            { question: "Compartir la teva ubicació en temps real amb desconeguts és segur?", correct: false, explanation: "❌ No! Pot posar en risc la teva seguretat personal." },
+            { question: "És recomanable fer servir contrasenyes diferents per a cada compte?", correct: true, explanation: "✅ Sí! Així, si una contrasenya és robada, no podran accedir als altres comptes." },
+            { question: "És correcte compartir captures de pantalla de converses privades?", correct: false, explanation: "❌ No! Són intercanvis personals i cal respectar la privacitat de les altres persones." },
+            { question: "Els sistemes d’IA poden ajudar a detectar intents de phishing?", correct: true, explanation: "✅ Sí! La IA pot analitzar correus o missatges sospitosos i advertir-te abans que facis clic." },
+            { question: "És segur utilitzar xarxes Wi-Fi públiques sense protecció?", correct: false, explanation: "❌ No! Sense protecció, algú pot accedir a les teves dades personals." },
+            { question: "Has de fer servir un antivirus al teu dispositiu?", correct: true, explanation: "✅ Sí! Un antivirus protegeix contra virus i amenaces digitals." },
+            { question: "És correcte acceptar amistats de desconeguts en jocs en línia?", correct: false, explanation: "❌ No! Poden ser persones amb intencions dolentes." }
         ];
 
         let currentUser = null, currentQuestion = 0, score = 0, selectedQuestions = [], isGuest = false;
@@ -220,11 +225,11 @@
 
         document.getElementById('guest-btn').addEventListener('click', () => {
             isGuest = true;
-            currentUser = { username: 'Invitat' + Math.floor(Math.random() * 1000) }; // Nom aleatori per invitat
+            currentUser = { username: 'Invitat' + Math.floor(Math.random() * 1000) };
             document.getElementById('welcome-user').textContent = currentUser.username;
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('start-screen').style.display = 'block';
-            document.getElementById('view-ranking-btn').style.display = 'none'; // Amaga ranking per invitats
+            document.getElementById('view-ranking-btn').style.display = 'none';
         });
 
         document.getElementById('register-btn').addEventListener('click', async () => {
@@ -278,7 +283,7 @@
             document.getElementById('next-btn').style.display = 'none';
             document.getElementById('yes-btn').disabled = false;
             document.getElementById('no-btn').disabled = false;
-            document.getElementById('view-ranking-game-btn').style.display = isGuest ? 'none' : 'block'; // Amaga ranking per invitats
+            document.getElementById('view-ranking-game-btn').style.display = isGuest ? 'none' : 'block';
         }
 
         function answer(isYes) {
@@ -315,7 +320,7 @@
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('end-screen').style.display = 'block';
             document.getElementById('final-score').innerHTML = `🎊 Has encertat <strong>${score}/10</strong>! Ets un <strong>${score >= 8 ? '🦸 SUPERGÈNIO' : '⭐ GUERRER'}</strong>`;
-            document.getElementById('view-ranking-end-btn').style.display = isGuest ? 'none' : 'block'; // Amaga ranking per invitats
+            document.getElementById('view-ranking-end-btn').style.display = isGuest ? 'none' : 'block';
         }
 
         async function showRanking() {
@@ -334,7 +339,7 @@
                 document.getElementById('ranking-screen').style.display = 'block';
             } else {
                 alert('⚠️ Els invitats no poden veure el ranking!');
-                document.getElementById('game-screen').style.display = 'block'; // Torna al joc
+                document.getElementById('game-screen').style.display = 'block';
             }
         }
 
